@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./lib/layui/css/layui.css">
+    <script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+</head>
+<body>
+<div class="layui-container">
+<form class="layui-form" id="dataForm">
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户id</label>
+        <div class="layui-input-block">
+            <input type="text" name="userId" id="userId" required lay-verify="required" placeholder="请输入用户id"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">商家id</label>
+        <div class="layui-input-block">
+            <input type="text" name="merchantId" id="merchantId" required lay-verify="required" placeholder="请输入商家id"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">订单金额</label>
+        <div class="layui-input-block">
+            <input type="text" name="amount" id="amount" required lay-verify="required" placeholder="请输入订单金额"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+</div>
+<script>
+    ;!function () {
+        var layer = layui.layer
+            , form = layui.form;
+
+        //监听提交
+        form.on('submit(formDemo)', function (data) {
+            var $ = layui.$;
+            $.ajax({
+                type: "POST",
+                contentType: 'application/json',
+                url: "http://localhost:8080/order/save",
+                data: JSON.stringify(data.field),
+                success: function (result) {
+                    //layer.msg(result);
+
+                    return true;
+                }
+            });
+
+        });
+    }();
+</script>
+</body>
+</html>

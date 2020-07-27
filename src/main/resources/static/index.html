@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./lib/layui/css/layui.css">
+    <script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+</head>
+<body>
+<div class="params">
+    搜索ID：
+    <div class="layui-inline">
+        <input class="layui-input" name="id" id="paramId" autocomplete="off">
+    </div>
+    <button class="layui-btn" data-type="reload">搜索</button>
+</div>
+<table class="layui-hide" id="demoTable" lay-filter="demoTable"></table>
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" data-type="add">添加</button>
+    </div>
+</script>
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="remove">删除</a>
+</script>
+</body>
+<script>
+    var form = layui.form, layer = layui.layer,
+        table = layui.table, $ = layui.$;
+    layui.use('table', function () {
+        table.render({
+            elem: '#demoTable',
+            url: '/order/page',
+            title: '订单数据表',
+            toolbar: '#toolbar',
+            cols: [[
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'id', title:'ID', width: 80, fixed: 'left',  unresize: true, sort: true},
+                {field: 'orderNo', title: '订单号'},
+                {field: 'amount', title: '金额', sort: true},
+                {field: 'createDate', title: '创建日期', sort: true},
+                {fixed: 'right', title: '操作', toolbar: '#tableBar', width: 150}
+            ]],
+            page: true,
+            parseData: function (res) {
+                for (const o of res.data.list) {
+                    console.info(o);
+                    o.id = o.id.toString();
+                }
+                return {
+                    "code": res.code,
+                    "data": res.data.list,
+                    "count": res.data.total,
+                }
+            }
+        });
+
+        table.on('tool(demoTable)', function (obj) {
+            if(obj.event === 'edit') {
+                update(obj.data);
+            }
+            if(obj.event === 'remove') {
+                remove(obj.data);
+            }
+        });
+
+        active = {
+            add: function(){ //添加数据
+                update(null);
+            },
+            reload: function () {
+                var id = $('#paramId');
+                table.reload('demoTable', {
+                    url: '/order/page',
+                    page: {curr: 1},
+                    where: {
+                        id: id.val()
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.layui-btn-container .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        $('.params .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+    var update = function(order) {
+        if(order === null) {
+            add();
+        } else {
+            edit(order);
+        }
+    }
+
+    var edit = function (order) {
+        layer.open({
+            type: 2,
+            title: '订单编辑',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['893px', '600px'],
+            content: '/form',
+            btn: ['确定'],
+            success: function (layero, index) {
+                $.ajax({
+                    type: "GET",
+                    contentType: 'application/x-www-form-urlencoded',
+                    url: "/order/get?id=" + order.id,
+                    success: function (result) {
+                        if(result.code === 0) {
+                            var dataForm = layero.context.getElementsByTagName('iframe')[0]
+                                .contentWindow.document.forms['dataForm'];
+                            dataForm.userId.value = result.data.userId;
+                            dataForm.merchantId.value = result.data.merchantId;
+                            dataForm.amount.value = result.data.amount;
+                        }
+                    }
+                });
+            },
+            yes: function (index, layero) {
+                var dataForm = layero.context.getElementsByTagName('iframe')[0]
+                    .contentWindow.document.forms['dataForm'];
+                var order = {
+                    userId: dataForm.userId.value,
+                    merchantId: dataForm.merchantId.value,
+                    amount: dataForm.amount.value
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: 'application/json',
+                    url: "http://localhost:8080/order/save",
+                    data: JSON.stringify(order),
+                    success: function (result) {
+                        //layer.msg(result);
+                        if(result.code === 0) {
+                            layer.close(index);
+                            table.reload('demoTable', {
+                                url: '/order/page',
+                                page: {
+                                    curr: 1
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    var add = function () {
+        layer.open({
+            type: 2,
+            title: '订单编辑',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['893px', '600px'],
+            content: '/form',
+            btn: ['确定'],
+            yes: function (index, layero) {
+                var dataForm = layero.context.getElementsByTagName('iframe')[0]
+                    .contentWindow.document.forms['dataForm'];
+                var order = {
+                    userId: dataForm.userId.value,
+                    merchantId: dataForm.merchantId.value,
+                    amount: dataForm.amount.value
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: 'application/json',
+                    url: "http://localhost:8080/order/save",
+                    data: JSON.stringify(order),
+                    success: function (result) {
+                        //layer.msg(result);
+                        if(result.code === 0) {
+                            layer.close(index);
+                            table.reload('demoTable', {
+                                url: '/order/page',
+                                page: {
+                                    curr: 1
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    var remove = function (order) {
+        $.ajax({
+            type: "PUT",
+            contentType: 'application/x-www-form-urlencoded',
+            url: "http://localhost:8080/order/remove?id=" + order.id,
+            success: function (result) {
+                //layer.msg(result);
+                if(result.code === 0) {
+                    table.reload('demoTable', {
+                        url: '/order/page',
+                        page: {
+                            curr: 1
+                        }
+                    });
+                } else {
+                    layer.msg(result.msg);
+                }
+            }
+        });
+    }
+
+</script>
+</html>
