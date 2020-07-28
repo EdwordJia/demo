@@ -60,6 +60,7 @@ public class OrderController {
     @PostMapping("update")
     public CompletableFuture<R<Boolean>> update(@RequestBody Order order) {
         return CompletableFuture.supplyAsync(() -> {
+            order.setUpdateDate(new Date());
             orderService.updateById(order);
             return R.ok(true);
         });

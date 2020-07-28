@@ -1,4 +1,4 @@
-package com.interview.demo.plugin;
+package com.interview.demo.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.google.common.collect.Maps;

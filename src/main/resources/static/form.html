@@ -9,6 +9,7 @@
 <body>
 <div class="layui-container">
 <form class="layui-form" id="dataForm">
+    <input type="text" name="id" id="id" style="display: none">
     <div class="layui-form-item">
         <label class="layui-form-label">用户id</label>
         <div class="layui-input-block">
@@ -30,36 +31,7 @@
                    autocomplete="off" class="layui-input">
         </div>
     </div>
-    <div class="layui-form-item">
-        <div class="layui-input-block">
-            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
-            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-        </div>
-    </div>
 </form>
 </div>
-<script>
-    ;!function () {
-        var layer = layui.layer
-            , form = layui.form;
-
-        //监听提交
-        form.on('submit(formDemo)', function (data) {
-            var $ = layui.$;
-            $.ajax({
-                type: "POST",
-                contentType: 'application/json',
-                url: "http://localhost:8080/order/save",
-                data: JSON.stringify(data.field),
-                success: function (result) {
-                    //layer.msg(result);
-
-                    return true;
-                }
-            });
-
-        });
-    }();
-</script>
 </body>
 </html>

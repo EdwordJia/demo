@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 import java.util.Map;
 
+/**
+ * 参数工具类
+ */
 public class ParamsUtil {
     private static final char SEPARATOR = '_';
 

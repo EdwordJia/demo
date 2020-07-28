@@ -17,7 +17,7 @@
 <table class="layui-hide" id="demoTable" lay-filter="demoTable"></table>
 <script type="text/html" id="toolbar">
     <div class="layui-btn-container">
-        <button class="layui-btn layui-btn-sm" data-type="add">添加</button>
+        <button class="layui-btn layui-btn-sm" lay-event="add">添加</button>
     </div>
 </script>
 <script type="text/html" id="tableBar">
@@ -65,10 +65,13 @@
             }
         });
 
+        table.on('toolbar(demoTable)', function (obj) {
+            if(obj.event === 'add') {
+                add();
+            }
+        });
+
         active = {
-            add: function(){ //添加数据
-                update(null);
-            },
             reload: function () {
                 var id = $('#paramId');
                 table.reload('demoTable', {
@@ -81,10 +84,6 @@
             }
         };
 
-        $('.layui-btn-container .layui-btn').on('click', function(){
-            var type = $(this).data('type');
-            active[type] ? active[type].call(this) : '';
-        });
         $('.params .layui-btn').on('click', function(){
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
@@ -121,6 +120,7 @@
                             dataForm.userId.value = result.data.userId;
                             dataForm.merchantId.value = result.data.merchantId;
                             dataForm.amount.value = result.data.amount;
+                            dataForm.id.value = result.data.id;
                         }
                     }
                 });
@@ -131,12 +131,13 @@
                 var order = {
                     userId: dataForm.userId.value,
                     merchantId: dataForm.merchantId.value,
-                    amount: dataForm.amount.value
+                    amount: dataForm.amount.value,
+                    id: dataForm.id.value
                 };
                 $.ajax({
                     type: "POST",
                     contentType: 'application/json',
-                    url: "http://localhost:8080/order/save",
+                    url: "http://localhost:8080/order/update",
                     data: JSON.stringify(order),
                     success: function (result) {
                         //layer.msg(result);
